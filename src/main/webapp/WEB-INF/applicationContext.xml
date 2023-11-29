@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd">
+
+	<jee:jndi-lookup id="portalDS" jndi-name="java:comp/env/jdbc/portalDS" />
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" 
+		p:dataSource-ref="portalDS" />
+
+	<tx:annotation-driven transaction-manager="transactionManager" /> 
+	
+	<context:property-placeholder location="classpath:env.properties"/>
+
+	<context:component-scan base-package="tw.gov.twc">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="portalDS" />
+		<property name="mapperLocations" value="classpath:tw/gov/twc/mapper/*.xml" />
+		<property name="typeAliasesPackage" value="tw.gov.twc.model,tw.gov.twc.mybatis.handler,tw.gov.twc.type" />
+		<property name="plugins">
+			<list>
+				<bean class="tw.gov.twc.mybatis.interceptor.PaginationInterceptor" />
+			</list>
+		</property>
+		<property name="typeHandlers">
+			<list>
+				<bean class="tw.gov.twc.mybatis.handler.TwDateTypeHandler" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"> 
+		<property name="basePackage" value="tw.gov.twc.mapper" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+	</bean>
+	
+	<bean id="authenticationFilter" class="org.jasig.cas.client.authentication.AuthenticationFilter" >
+		<property name="casServerLoginUrl" value="${cas.server.scheme}://${cas.server.domain}/login" />
+		<property name="serverName" value="${ap.server.scheme}://${ap.server.domain}" />
+		<property name="renew" value="false" />
+		<property name="gateway" value="false" />
+	</bean>
+	
+	<bean id="ticketValidationFilter" class="org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter" >
+		<property name="serverName" value="${ap.server.scheme}://${ap.server.domain}" />
+		<property name="ticketValidator">
+			<bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+				<constructor-arg index="0" value="${cas.server.scheme}://${cas.server.domain}" />
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="singleSignOutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter" />
+
+	<bean id="httpServletRequestWrapperFilter" class="org.jasig.cas.client.util.HttpServletRequestWrapperFilter" />
+	
+</beans>

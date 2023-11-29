@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+	<Resource
+	    auth="Container"
+	    description="JNDI JDBC DataSource"
+	    name="jdbc/portalDS"
+	    type="javax.sql.DataSource"
+	    driverClassName="oracle.jdbc.OracleDriver"
+	    factory="tw.gov.twc.utils.EncDataSourceFactory"
+	    username="username"
+		password="encrypted_password"
+	    maxIdle="2"
+	    maxWait="5000"
+	    url="jdbc:oracle:thin:@//db.server.ip/DbName"
+	    maxActive="4"/>
+</Context>

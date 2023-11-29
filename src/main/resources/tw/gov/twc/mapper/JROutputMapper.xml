@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="tw.gov.twc.mapper.JROutputMapper">
+
+	<insert id="insert" parameterType="JROutput">
+		insert into jr_output (
+			output_id, report_id, report_name, 
+			run_mode, parameter_text, create_user_id, 
+			create_timestamp, jr_server, output_path, 
+			output_status, start_timestamp, end_timestamp, 
+			page_count, expiration_date
+		) values (
+			get_seq_no, #{report_id,jdbcType=VARCHAR}, #{report_name,jdbcType=VARCHAR},
+			#{run_mode,jdbcType=VARCHAR}, #{parameter_text,jdbcType=VARCHAR}, #{create_user_id,jdbcType=VARCHAR},
+			#{create_timestamp,jdbcType=TIMESTAMP}, #{jr_server,jdbcType=VARCHAR}, #{output_path,jdbcType=VARCHAR},
+			#{output_status,jdbcType=VARCHAR}, #{start_timestamp,jdbcType=TIMESTAMP}, #{end_timestamp,jdbcType=TIMESTAMP},
+			#{page_count,jdbcType=NUMERIC}, #{expiration_date,jdbcType=TIMESTAMP}
+		)
+	</insert>
+
+</mapper>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+
+    <context:component-scan base-package="tw.gov.twc.controller">
+    	<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    
+    <mvc:annotation-driven conversion-service="conversionService" content-negotiation-manager="contentNegotiationManager">
+    	<mvc:message-converters>
+    		<bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
+    	</mvc:message-converters>
+    </mvc:annotation-driven>
+    
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="converters">
+        	<set>
+				<bean class="tw.gov.twc.spring.converter.StringToTwDateConverter"/>
+				<bean class="tw.gov.twc.spring.converter.TwDateToStringConverter"/>
+			</set>
+		</property>
+		<property name="formatters">
+			<set>
+				<bean class="org.springframework.format.number.NumberFormatAnnotationFormatterFactory"/>
+			</set>
+		</property>
+	</bean>
+	
+	<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<property name="favorPathExtension" value="false" />
+		<property name="favorParameter" value="true" />
+		<property name="mediaTypes" >
+			<value>
+				json=application/json
+			</value>
+		</property>
+	</bean>
+	
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		p:prefix="/WEB-INF/jsp/" p:suffix=".jsp" />
+	
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="tw.gov.twc.controller.PermissionDeniedReportAccessException">401</prop>
+				<prop key="tw.gov.twc.service.ReportConfigNotFountException">404</prop>
+			</props>
+		</property>
+	</bean>
+	
+</beans>
